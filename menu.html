@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css">
+  <title>Puissance4 - Menu</title>
+  <style>
+    /* menu minimal sans toucher au style principal */
+    .menu-wrap { background: #0b1220; color: #fff; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .menu { background:#16325c; padding:24px; border-radius:8px; width:320px; }
+    .menu h1{ margin:0 0 12px 0; font-size:20px }
+    .menu label{ display:block; margin-top:8px; font-size:14px }
+    .menu input, .menu select { width:100%; padding:8px; margin-top:6px; border-radius:4px; border:1px solid #234 }
+    .menu button { margin-top:12px; width:100%; padding:10px; border:none; border-radius:4px; background:#ffcc00; font-weight:bold }
+  </style>
+</head>
+<body>
+  <div class="menu-wrap">
+    <div class="menu">
+      <h1>Puissance 4 — Menu</h1>
+      <label for="p1">Joueur 1 (rouge)</label>
+      <input id="p1" placeholder="Pseudo joueur 1" value="Rouge">
+      <label for="p2">Joueur 2 (jaune)</label>
+      <input id="p2" placeholder="Pseudo joueur 2" value="Jaune">
+      <!-- mode selection removed: only pseudos for now -->
+      <button id="start">Démarrer</button>
+    </div>
+  </div>
+  <script src="/static/menu.js"></script>
+</body>
+</html>
