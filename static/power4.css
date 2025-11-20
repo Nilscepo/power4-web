@@ -12,6 +12,15 @@ body {
     margin-right: 0px;
 }
 
+.titre {
+    color: white;
+    text-align: center;
+    margin-top: 7px;
+    font-family: 'Modak', cursive;
+    font-size: 86px;
+    letter-spacing: 2px;
+}
+
 .grille {
     position: absolute;
     background-color: rgb(68, 77, 255);
