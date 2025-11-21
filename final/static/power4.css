@@ -26,7 +26,7 @@ body {
 
 .titre {
     color: rgb(255, 0, 0);
-    -webkit-text-stroke: 8px rgb(255, 255, 255);
+    -webkit-text-stroke: 2px rgb(255, 255, 255);
     text-align: center;
     margin-top: 7px;
     font-family: 'Modak', cursive;
