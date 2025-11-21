@@ -23,7 +23,11 @@ Comment lancer (développement local)
   ```powershell
   go run .
   ```
-  ou git bash go run main.go
+  ou 
+  
+  ```git bash 
+  go run main.go
+  ```
 
 - Ouvrir le navigateur à l'URL indiquée par le serveur (généralement `http://localhost:8080` ou l'URL affichée dans la console).
 
