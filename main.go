@@ -1,45 +1,44 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"path/filepath"
-	"sync"
-	"time"
+	"encoding/json" // Pour encoder/décoder du JSON
+	"fmt"           // Pour afficher du texte dans la console
+	"net/http"      // Pour créer un serveur HTTP
+	"path/filepath" // Pour gérer les chemins de fichiers
+	"sync"          // Pour synchronisation via mutex (lock/unlock)
+	"time"          // Pour gérer le temps, notamment les timers
 )
 
-// Serveur simple Puissance 4
-// Toute la logique est en Go, fonctions en français et commentaires en français.
-
+// création de var. lock pour protéger les variables partagées
 var mu sync.Mutex
 
-// plateau 6 lignes x 7 colonnes, 0 = vide, 1 = rouge, 2 = jaune
-// plateau dynamique : rows x cols
-var plateau [][]int
-var rows int = 6
-var cols int = 7
-var connectN int = 4 // nombre à aligner pour gagner
-var courant int = 1  // joueur courant: 1 ou 2
-var vainqueur int = 0
-var timers = map[int]int{1: 180, 2: 180} // secondes restantes pour chaque joueur
-var egalite bool = false
-var dernierRow int = -1
-var dernierCol int = -1
+// Variables globales représentant l'état du jeu
+var (
+	plateau    [][]int                       // le plateau, matrice de rows x cols contenant 0, 1, ou 2
+	rows       = 6                           // nombre de lignes (std)
+	cols       = 7                           // nombre de colonnes (std)
+	connectN   = 4                           // nombre de jetons alignés nécessaires pour win
+	courant    = 1                           // détermine quel joueur joue (1 ou 2)
+	vainqueur  = 0                           // 0 = pas encore de vainqueur, 1 ou 2 sinon
+	timers     = map[int]int{1: 180, 2: 180} // chronomètres pour chaque joueur (en sec.)
+	egalite    = false                       // indique s'il y a égalité
+	dernierRow = -1                          // dernière ligne où un jeton a été posé
+	dernierCol = -1                          // dernière colonne où un jeton a été posé
+)
 
 func main() {
-	nouveauPlateau()
+	nouveauPlateau() // initialise le plateau au démarrage
 
-	// goroutine pour le "chrono" : décrémente le temps du joueur courant
+	// goroutine (permet la continuité du prog.) qui gère les timers (décrémentation chaque seconde)
 	go func() {
-		ticker := time.NewTicker(1 * time.Second)
+		ticker := time.NewTicker(1 * time.Second) // un tick chaque seconde
 		for range ticker.C {
-			mu.Lock()
-			if vainqueur == 0 && !egalite {
+			mu.Lock()                       // verrouille pour accès concurrent sécurisé
+			if vainqueur == 0 && !egalite { // décrément uniquement si la partie continue
 				if timers[courant] > 0 {
-					timers[courant]--
+					timers[courant]-- // on enlève 1 seconde au joueur courant
 					if timers[courant] <= 0 {
-						// si le temps arrive à 0, fin de la partie en égalité
+						// si le timer atteint 0, la partie est déclarée en égalité
 						egalite = true
 					}
 				}
@@ -48,21 +47,23 @@ func main() {
 		}
 	}()
 
-	http.HandleFunc("/", handleIndex)
-	// servir le dossier static sur /static/
+	http.HandleFunc("/", handleIndex) // route pour la page menu
+
+	// sert les fichiers statiques (CSS, JS, images)
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	http.HandleFunc("/state", handleState)
-	http.HandleFunc("/play", handlePlay)
-	http.HandleFunc("/set_mode", handleSetMode)
-	http.HandleFunc("/reset", handleReset)
-	http.HandleFunc("/game", handleGame)
+	http.HandleFunc("/state", handleState) // route qui renvoie l'état du jeu en JSON
+	http.HandleFunc("/play", handlePlay)   // route pour jouer un coup
+	http.HandleFunc("/reset", handleReset) // route pour réinitialiser la partie
+	http.HandleFunc("/game", handleGame)   // page principale du jeu
 
 	addr := ":8080"
 	fmt.Println("Serveur démarré sur http://localhost" + addr)
+
+	// démarrage du serveur HTTP sur le port 8080
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		// afficher l'erreur et tenter un port de secours
+		// si erreur, on essaie le port 8081
 		fmt.Println("Erreur ListenAndServe:", err)
 		fmt.Println("Tentative sur le port :8081...")
 		if err2 := http.ListenAndServe(":8081", nil); err2 != nil {
@@ -73,16 +74,19 @@ func main() {
 
 // nouveauPlateau réinitialise le jeu
 func nouveauPlateau() {
-	mu.Lock()
-	defer mu.Unlock()
-	// (re)créer le plateau selon rows x cols
-	plateau = make([][]int, rows)
+	mu.Lock()         // verrouillage
+	defer mu.Unlock() // déverrouille automatiquement quand l'action est finie
+
+	// création d’un plateau vide lignes x colonnes
+	plateau = make([][]int, rows) // slice de slice d'entier (dynamique)
 	for r := 0; r < rows; r++ {
 		plateau[r] = make([]int, cols)
-		for c := 0; c < cols; c++ {
-			plateau[r][c] = 0
+		for c := 0; c < cols; c++ { //--> '1/2' si pion et supp '0'
+			plateau[r][c] = 0 // case vide | sert pour vider le plateau
 		}
 	}
+
+	// réinitialisation des variables de partie "rematch"
 	courant = 1
 	vainqueur = 0
 	timers[1] = 180
@@ -92,19 +96,19 @@ func nouveauPlateau() {
 	dernierCol = -1
 }
 
-// handleIndex sert la page de menu (menu.html)
-func handleIndex(w http.ResponseWriter, r *http.Request) {
+// handleIndex sert la page du menu
+func handleIndex(w http.ResponseWriter, r *http.Request) { // répond aux requêtes HTTP
 	p, _ := filepath.Abs("./menu.html")
-	http.ServeFile(w, r, p)
+	http.ServeFile(w, r, p) // envoie menu.html au client
 }
 
 // handleGame sert la page du jeu (index.html)
-func handleGame(w http.ResponseWriter, r *http.Request) {
+func handleGame(w http.ResponseWriter, r *http.Request) { // appelée quand le joueur clique sur "Jouer" dans le menu.
 	p, _ := filepath.Abs("./index.html")
 	http.ServeFile(w, r, p)
 }
 
-// type pour réponse d'état
+// Etat représente les données envoyées en JSON au client
 type Etat struct {
 	Plateau    [][]int     `json:"plateau"`
 	Courant    int         `json:"courant"`
@@ -115,114 +119,150 @@ type Etat struct {
 	Egalite    bool        `json:"egalite"`
 }
 
+// crée copie sécurisée du plateau pour éviter modification concurrente = bug
 func copyPlateau() [][]int {
-	p := make([][]int, rows)
+	p := make([][]int, rows) // p = copie du plateau
 	for r := 0; r < rows; r++ {
-		p[r] = make([]int, cols)
-		for c := 0; c < cols; c++ {
-			p[r][c] = plateau[r][c]
-		}
+		row := make([]int, cols)
+		copy(row, plateau[r]) // copie des éléments
+		p[r] = row
 	}
 	return p
 }
 
-// handleState renvoie l'état JSON
-func handleState(w http.ResponseWriter, r *http.Request) {
-	mu.Lock()
-	defer mu.Unlock()
-	etat := Etat{Plateau: copyPlateau(), Courant: courant, Vainqueur: vainqueur, Timers: map[int]int{1: timers[1], 2: timers[2]}, DernierRow: dernierRow, DernierCol: dernierCol, Egalite: egalite}
+// envoie la réponse JSON
+func writeJSON(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(etat)
+	_ = json.NewEncoder(w).Encode(v)
 }
 
-// structure pour la requête de jeu
+// utilitaire pour envoyer une erreur JSON
+func writeError(w http.ResponseWriter, status int, msg string) {
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
+}
+
+// handleState : renvoie l’état du jeu au client
+func handleState(w http.ResponseWriter, r *http.Request) {
+	mu.Lock()
+	etat := Etat{
+		Plateau:    copyPlateau(),
+		Courant:    courant,
+		Vainqueur:  vainqueur,
+		Timers:     map[int]int{1: timers[1], 2: timers[2]},
+		DernierRow: dernierRow,
+		DernierCol: dernierCol,
+		Egalite:    egalite,
+	}
+	mu.Unlock()
+	writeJSON(w, etat)
+}
+
+// PlayReq représente une requête où l’on indique la colonne à jouer
 type PlayReq struct {
 	Col int `json:"col"`
 }
 
-// handlePlay place un jeton dans une colonne
+// handlePlay reçoit un coup du joueur
 func handlePlay(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "méthode non autorisée")
 		return
 	}
+
 	var req PlayReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "requête invalide")
 		return
 	}
 	col := req.Col
+
 	mu.Lock()
-	defer mu.Unlock()
-	var dernierR, dernierC = -1, -1
+
+	// vérification si la partie est déjà finie
 	if vainqueur != 0 {
-		// jeu terminé
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]string{"error": "jeu termine"})
+		mu.Unlock()
+		writeError(w, http.StatusConflict, "jeu termine")
 		return
 	}
+
+	// vérification validité de la colonne
 	if col < 0 || col >= cols {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "colonne invalide"})
+		mu.Unlock()
+		writeError(w, http.StatusBadRequest, "colonne invalide")
 		return
 	}
+
+	// colonne pleine ?
 	if colonnePleine(col) {
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]string{"error": "colonne pleine"})
+		mu.Unlock()
+		writeError(w, http.StatusConflict, "colonne pleine")
 		return
 	}
-	// placer jeton (renommer la variable pour éviter collision avec le paramètre *http.Request)
+
+	// placement du jeton dans la colonne
 	ligne, err := placerJeton(col, courant)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "impossible de placer"})
+		mu.Unlock()
+		writeError(w, http.StatusInternalServerError, "impossible de placer")
 		return
 	}
-	dernierR = ligne
-	dernierC = col
-	// mettre à jour dernier coup global
-	dernierRow = dernierR
-	dernierCol = dernierC
-	// vérifier victoire
+
+	// mise à jour position du dernier jeton
+	dernierRow = ligne
+	dernierCol = col
+
+	// vérification victoire, égalité, ou changement de joueur
 	if verifierVictoire() {
 		vainqueur = courant
+	} else if isFull() {
+		egalite = true
 	} else {
-		// si la grille est pleine -> égalité
-		if isFull() {
-			egalite = true
+		// changement de joueur
+		if courant == 1 {
+			courant = 2
 		} else {
-			// changer joueur
-			if courant == 1 {
-				courant = 2
-			} else {
-				courant = 1
-			}
+			courant = 1
 		}
 	}
 
-	etat := Etat{Plateau: copyPlateau(), Courant: courant, Vainqueur: vainqueur, Timers: map[int]int{1: timers[1], 2: timers[2]}, DernierRow: dernierR, DernierCol: dernierC}
-	etat.Egalite = egalite
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(etat)
+	etat := Etat{
+		Plateau:    copyPlateau(),
+		Courant:    courant,
+		Vainqueur:  vainqueur,
+		Timers:     map[int]int{1: timers[1], 2: timers[2]},
+		DernierRow: dernierRow,
+		DernierCol: dernierCol,
+		Egalite:    egalite,
+	}
+
+	mu.Unlock()
+
+	writeJSON(w, etat)
 }
 
-// handleSetMode permet de configurer le mode de jeu (rows x cols ou noms prédéfinis)
+// handleSetMode change la taille du plateau selon le mode choisi
 func handleSetMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
+
 	var body struct {
 		Mode string `json:"mode"`
 		Rows int    `json:"rows"`
 		Cols int    `json:"cols"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	mu.Lock()
 	defer mu.Unlock()
+
+	// sélection du mode
 	switch body.Mode {
 	case "large":
 		rows = 11
@@ -230,27 +270,31 @@ func handleSetMode(w http.ResponseWriter, r *http.Request) {
 		connectN = 4
 
 	case "9x10":
-		// mode alternatif demandé : 9 lignes x 10 colonnes
 		rows = 9
 		cols = 10
 		connectN = 4
+
 	case "normal":
 		rows = 6
 		cols = 7
 		connectN = 4
+
 	default:
+		// mode personnalisé
 		if body.Rows > 0 && body.Cols > 0 {
 			rows = body.Rows
 			cols = body.Cols
 			connectN = 4
 		}
 	}
-	// réinitialiser le plateau
+
+	// réinitialisation du plateau
 	nouveauPlateau()
+
 	w.WriteHeader(http.StatusOK)
 }
 
-// handleReset remet le jeu à zéro
+// handleReset remet complètement à zéro la partie
 func handleReset(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -260,16 +304,16 @@ func handleReset(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// colonnePleine renvoie true si la colonne est pleine
+// colonnePleine vérifie si la colonne est pleine
 func colonnePleine(col int) bool {
-	// si la première ligne est non nulle, la colonne est pleine
+	// une colonne est pleine si la première ligne est non vide
 	if rows == 0 || cols == 0 {
 		return true
 	}
 	return plateau[0][col] != 0
 }
 
-// placerJeton place un jeton du joueur dans la colonne et renvoie la ligne
+// placerJeton place un jeton dans la colonne, à la première case disponible en partant du bas
 func placerJeton(col int, joueur int) (int, error) {
 	for r := rows - 1; r >= 0; r-- {
 		if plateau[r][col] == 0 {
@@ -280,7 +324,7 @@ func placerJeton(col int, joueur int) (int, error) {
 	return -1, fmt.Errorf("colonne pleine")
 }
 
-// isFull renvoie true si le plateau est plein
+// isFull vérifie si tout le plateau est rempli
 func isFull() bool {
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
@@ -292,30 +336,41 @@ func isFull() bool {
 	return true
 }
 
-// verifierVictoire parcourt le plateau et detecte 4 à la suite
+// verifierVictoire vérifie si un joueur a aligné connectN jetons
 func verifierVictoire() bool {
-	// directions : droite, bas, bas-droite, bas-gauche
-	dirs := [][2]int{{0, 1}, {1, 0}, {1, 1}, {1, -1}}
+	// directions à explorer : droite, bas, diagonale bas-droite, diagonale bas-gauche
+	dirs := [][2]int{
+		{0, 1},  // droite
+		{1, 0},  // bas
+		{1, 1},  // diagonale bas-droite
+		{1, -1}, // diagonale bas-gauche
+	}
+
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
 			val := plateau[r][c]
 			if val == 0 {
-				continue
+				continue // case vide, on ignore
 			}
+
+			// on teste chaque direction
 			for _, d := range dirs {
 				cnt := 1
 				nr := r + d[0]
 				nc := c + d[1]
+
+				// tant que les jetons sont alignés
 				for nr >= 0 && nr < rows && nc >= 0 && nc < cols && plateau[nr][nc] == val {
 					cnt++
 					nr += d[0]
 					nc += d[1]
 				}
+
 				if cnt >= connectN {
-					return true
+					return true // victoire détectée
 				}
 			}
 		}
 	}
-	return false
+	return false // aucune victoire
 }

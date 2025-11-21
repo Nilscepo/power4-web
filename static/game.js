@@ -170,6 +170,26 @@ function attachHandlers() {
       window.location.href = '/';
     });
   }
+  // bouton revanche : reset the game but stay on the same page
+  const rem = document.getElementById('rematch');
+  if (rem) {
+    rem.addEventListener('click', async ()=>{
+      // protéger contre double-clics rapides
+      rem.disabled = true;
+      try {
+        await fetch('/reset', {method:'POST'});
+      } catch(e) { /* ignore network errors */ }
+      // réinitialiser l'état client pour permettre nouvelles alertes
+      _lastEtat = { vainqueur: 0, egalite: false };
+      // cacher visuels de victoire
+      const wr = document.querySelector('.win_rouge'); if (wr) wr.style.visibility = 'hidden';
+      const wj = document.querySelector('.win_jaune'); if (wj) wj.style.visibility = 'hidden';
+      // recharger l'état pour remettre la grille à zéro
+      await getState().then(updateDOM).catch(()=>{});
+      // réactiver le bouton après un court délai
+      setTimeout(()=> { rem.disabled = false; }, 800);
+    });
+  }
   
 }
 
