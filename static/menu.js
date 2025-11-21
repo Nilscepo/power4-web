@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const start = document.getElementById('start');
   const p1 = document.getElementById('p1');
   const p2 = document.getElementById('p2');
-  const mode = document.getElementById('mode');
 
   start.addEventListener('click', () => {
     const j1 = (p1.value || 'Rouge').trim();
