@@ -1,0 +1,461 @@
+body {
+    background-color: black;
+}
+
+.head {
+    position: absolute;
+    background-color: rgb(46, 46, 46);
+    width: 100%;
+    height: 120px;
+    margin-top: 0px;
+    margin-left: -10px;
+    margin-right: 0px;
+}
+
+.bouton {
+    position:absolute; 
+    left:20px; 
+    top:20px;
+    z-index:1000; 
+    padding:8px 12px; 
+    border-radius:6px; 
+    background:#ffffff; 
+    border:none; 
+    font-weight:bold;
+}
+
+.titre {
+    color: rgb(255, 0, 0);
+    -webkit-text-stroke: 8px rgb(255, 255, 255);
+    text-align: center;
+    margin-top: 7px;
+    font-family: 'Modak', cursive;
+    font-size: 86px;
+    letter-spacing: 2px;
+}
+
+.grille {
+    position: absolute;
+    background-color: rgb(68, 77, 255);
+    width: 580px;
+    height: 500px;
+    margin-left: 460px;
+    margin-top: 170px;
+    border-radius: 15px;
+}
+
+.button_1 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 20px;
+    border-radius: 100px;
+    border: none;
+}
+
+.button_2 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 100px;
+    border-radius: 100px;
+    border: none;
+}
+
+.button_3 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 180px;
+    border-radius: 100px;
+    border: none;
+}
+
+.button_4 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 260px;
+    border-radius: 100px;
+    border: none;
+}
+
+.button_5 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 340px;
+    border-radius: 100px;
+    border: none;
+}
+
+.button_6 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 420px;
+    border-radius: 100px;
+    border: none;
+}
+
+.button_7 {
+    position: absolute;
+    background-color: rgb(255, 0, 187, 0);
+    width: 60px;
+    height: 460px;
+    margin-top: 20px;
+    margin-left: 500px;
+    border-radius: 100px;
+    border: none;
+}
+
+.win_rouge {
+    position: absolute;
+    background-color: rgb(68, 77, 255);
+    width: 180px;
+    height: 200px;
+    margin-left: 50px;
+    margin-top: 200px;
+    border-style: solid;
+    border-width: 10px;
+    border-color: rgb(0, 35, 99);
+    border-radius: 15px;
+}
+
+.win_jaune {
+    position: absolute;
+    background-color: rgb(68, 77, 255);
+    width: 180px;
+    height: 200px;
+    margin-left: 1280px;
+    margin-top: 200px;
+    border-style: solid;
+    border-width: 10px;
+    border-color: rgb(0, 35, 99);
+    border-radius: 15px;
+}
+.time_rouge {
+    position: absolute;
+    background-color: rgb(68, 77, 255);
+    width: 130px;
+    height: 90px;
+    margin-left: 100px;
+    margin-top: 550px;
+    border-style: solid;
+    border-width: 10px;
+    border-color: rgb(0, 35, 99);
+    border-radius: 15px;
+}
+
+.time_jaune {
+    position: absolute;
+    background-color: rgb(68, 77, 255);
+    width: 130px;
+    height: 90px;
+    margin-left: 1280px;
+    margin-top: 550px;
+    border-style: solid;
+    border-width: 10px;
+    border-color: rgb(0, 35, 99);
+    border-radius: 15px;
+}
+
+.textrouge {
+    text-align: center;
+    color: rgb(255, 0, 0);
+    margin-top: 10px;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.textjaune {
+    text-align: center;
+    color: rgb(231, 252, 0);
+    margin-top: 10px;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.nomjoueurrouge {
+    display: block;
+    text-align: center;
+    color: #fff;
+    margin-top: 4px;
+}
+
+.nomjoueurjaune {
+    display: block;
+    text-align: center;
+    color: #fff;
+    margin-top: 4px;
+}
+
+/* Amélioration de la police pour les chronos */
+.time_rouge #timer_X, .time_jaune #timer_O {
+    display: block;
+    text-align: center;
+    font-family: 'Segoe UI';
+    font-weight: 700;
+    font-size: 20px;
+    color: white;
+    line-height: 40px;
+    letter-spacing: 1px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.image {
+    margin-left: 31px;
+    margin-top: 30px;
+}
+
+.ligne_1 {
+    position: absolute;
+    margin-top: 20px;
+}
+
+.ligne_2 {
+    position: absolute;
+    margin-top: 100px;
+}
+
+.ligne_3 {
+    position: absolute;
+    margin-top: 180px;
+}
+
+.ligne_4 {
+    position: absolute;
+    margin-top: 260px;
+}
+
+.ligne_5 {
+    position: absolute;
+    margin-top: 340px;
+}
+
+.ligne_6 {
+    position: absolute;
+    margin-top: 420px;
+}
+
+.A1_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 20px;
+    border-radius: 100px;
+}
+
+.A1_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.A2_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 100px;
+    border-radius: 100px;
+}
+
+.A2_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.A3_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 180px;
+    border-radius: 100px;
+}
+
+.A3_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.A4_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 260px;
+    border-radius: 100px;
+}
+
+.A4_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.A5_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 340px;
+    border-radius: 100px;
+}
+
+.A5_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.A6_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 420px;
+    border-radius: 100px;
+}
+
+.A6_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.A7_relief {
+    position: absolute;
+    background-color: rgb(0, 35, 99);
+    width: 60px;
+    height: 60px;
+    margin-left: 500px;
+    border-radius: 100px;
+}
+
+.A7_creux {
+    position: absolute;
+    background-color: black;
+    width: 60px;
+    height: 54px;
+    border-radius: 100px;
+}
+
+.rouge {
+    background-color: red;
+    border-radius: 50%;
+}
+
+.jaune {
+    background-color: yellow;
+    border-radius: 50%;
+}
+
+.rouge {
+    background-color: red;
+    border-radius: 50%;
+}
+
+.jaune {
+    background-color: yellow;
+    border-radius: 50%;
+}
+
+/* Animation minimaliste pour jeton qui tombe */
+.jeton-anim {
+  transition: transform 0.5s ease;
+}
+
+ .menu-wrap { 
+    background: #7f8e8b00; 
+    color: #ffffff; 
+    min-height:100vh; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+}
+
+.menu { 
+    background:#ffffff71; 
+    padding:30px; 
+    border-radius:8px; 
+    width:320px; 
+}
+
+.accueil { 
+    position: absolute;
+    z-index: 1000;
+    text-align: center;
+    margin-top:-450px;
+    margin-left:-24px; 
+    font-size:50px;
+    font-family:'Modak', cursive;
+    font-weight: 100;
+    -webkit-text-stroke: 2px rgb(255, 255, 255);
+    color: rgb(255, 0, 0);
+    background-color: #ffffff00;
+}
+
+.menu label { 
+    display:block;
+    margin-left:-24px; 
+    margin-top:-15px; 
+    font-size:14px;
+    background-color: #ffffff00;
+}
+
+.menu input { 
+    background-color: #fff;
+    width:93%; 
+    padding:10px; 
+    margin-top:-15px; 
+    border-radius:4px; 
+    border:1px solid rgb(255, 255, 255) 
+}
+.menu button { 
+    margin-top:30px; 
+    width:100%; 
+    padding:10px; 
+    border:none; 
+    border-radius:4px; 
+    background:#ffcc00; 
+    font-weight:bold 
+}
+
+.background-image {
+    z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
